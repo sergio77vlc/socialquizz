@@ -189,6 +189,21 @@ sudo ufw enable
 
 Abre `https://tudominio.es` — deberías ver el candado de "conexión segura". A partir de aquí, el QR generado en la sala de espera ya apuntará a esa URL HTTPS automáticamente, y tanto la cámara (escanear QR) como el micrófono (responder por voz) pedirán permiso y funcionarán con normalidad.
 
+## Cuentas, login y verificación por email
+
+La app incluye registro e inicio de sesión con verificación por email, usando [Resend](https://resend.com) para el envío (API HTTPS sencilla, sin necesidad de montar un servidor de correo en el VPS). Define estas variables en el entorno donde corre `server`:
+
+```bash
+RESEND_API_KEY=re_...                        # clave de tu cuenta de Resend
+EMAIL_FROM="SocialQuizz <onboarding@resend.dev>"   # remitente (opcional; usa el de prueba de Resend si no tienes dominio verificado en Resend)
+PUBLIC_ORIGIN=https://tudominio.es            # URL pública, para construir el enlace de verificación
+AUTH_JWT_SECRET=$(openssl rand -hex 32)       # firma de las sesiones (opcional; se genera y persiste solo si no lo defines)
+```
+
+Si no se define `RESEND_API_KEY`, el registro funciona igualmente: el enlace de verificación se escribe en el log del servidor en vez de enviarse por email, así que puedes probar el flujo completo sin cuenta de Resend. `AUTH_JWT_SECRET` tampoco es obligatorio: si falta, el servidor genera uno aleatorio la primera vez y lo guarda en `server/data/jwt-secret.txt` para que las sesiones sobrevivan a reinicios; aun así, en producción es mejor fijarlo tú explícitamente (con el `openssl rand -hex 32` de arriba, por ejemplo) para no invalidar las sesiones de todo el mundo si ese archivo se pierde.
+
+Los usuarios se guardan en `server/data/users.json`, igual que los paquetes de IA: fuera de `dist/`, no se sube al repositorio, y sobrevive a recompilaciones.
+
 ## Paquetes de contenido con IA
 
 Para habilitar la creación de paquetes (roscos completos en Pasapalabra, tandas de preguntas en Quiz y Batalla) a partir de un prompt, define la variable de entorno `ANTHROPIC_API_KEY` en el entorno donde corre `server`:
@@ -213,6 +228,7 @@ Variables de entorno opcionales:
 - `HOST` — interfaz de red en la que escucha (por defecto `0.0.0.0`); usa `127.0.0.1` cuando pongas Nginx delante como proxy inverso.
 - `ANTHROPIC_API_KEY` — habilita la generación de paquetes de contenido por IA.
 - `ROSCO_AI_MODEL` — modelo de Anthropic a usar, tanto para roscos como para preguntas (por defecto `claude-sonnet-5`).
+- `RESEND_API_KEY`, `EMAIL_FROM`, `PUBLIC_ORIGIN`, `AUTH_JWT_SECRET` — ver la sección "Cuentas, login y verificación por email" arriba.
 
 ## Estructura del proyecto
 
