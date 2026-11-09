@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import { GameProvider } from './context/GameContext';
 import { LocalGameProvider } from './context/LocalGameContext';
 import { QuizProvider } from './context/QuizContext';
@@ -38,19 +39,26 @@ import CrosswordJoinLobby from './pages/crossword/CrosswordJoinLobby';
 import CrosswordPlayerGame from './pages/crossword/CrosswordPlayerGame';
 import CrosswordLocalSetup from './pages/crossword/CrosswordLocalSetup';
 import CrosswordLocalGamePage from './pages/crossword/CrosswordLocalGamePage';
+import LoginPage from './pages/auth/LoginPage';
+import RegisterPage from './pages/auth/RegisterPage';
+import VerifyPage from './pages/auth/VerifyPage';
 
 export default function App() {
   return (
-    <GameProvider>
-      <LocalGameProvider>
-        <QuizProvider>
-          <BattleProvider>
-            <LocalBattleProvider>
-              <CrosswordProvider>
-                <LocalCrosswordProvider>
-                  <Routes>
-                    <Route path="/" element={<GamesHub />} />
-                    <Route path="/pasapalabra" element={<PasapalabraHome />} />
+    <AuthProvider>
+      <GameProvider>
+        <LocalGameProvider>
+          <QuizProvider>
+            <BattleProvider>
+              <LocalBattleProvider>
+                <CrosswordProvider>
+                  <LocalCrosswordProvider>
+                    <Routes>
+                      <Route path="/" element={<GamesHub />} />
+                      <Route path="/login" element={<LoginPage />} />
+                      <Route path="/registro" element={<RegisterPage />} />
+                      <Route path="/verificar" element={<VerifyPage />} />
+                      <Route path="/pasapalabra" element={<PasapalabraHome />} />
                     <Route path="/host" element={<HostSetup />} />
                     <Route path="/host/:code" element={<HostRoomPage />} />
                     <Route path="/join" element={<JoinScan />} />
@@ -81,13 +89,14 @@ export default function App() {
                     <Route path="/crossword/local" element={<CrosswordLocalSetup />} />
                     <Route path="/crossword/local/play" element={<CrosswordLocalGamePage />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
-                  </Routes>
-                </LocalCrosswordProvider>
-              </CrosswordProvider>
-            </LocalBattleProvider>
-          </BattleProvider>
-        </QuizProvider>
-      </LocalGameProvider>
-    </GameProvider>
+                    </Routes>
+                  </LocalCrosswordProvider>
+                </CrosswordProvider>
+              </LocalBattleProvider>
+            </BattleProvider>
+          </QuizProvider>
+        </LocalGameProvider>
+      </GameProvider>
+    </AuthProvider>
   );
 }

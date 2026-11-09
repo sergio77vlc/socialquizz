@@ -18,6 +18,7 @@ import { registerQuizSocketHandlers } from './quizSocketHandlers.js';
 import { registerBattleSocketHandlers } from './battleSocketHandlers.js';
 import { registerCrosswordSocketHandlers } from './crosswordSocketHandlers.js';
 import { listCrosswordSummaries, getCrosswordPuzzle } from './crossword/pool.js';
+import { registerAuthRoutes } from './authRoutes.js';
 
 const VALID_DIFFICULTIES: Difficulty[] = ['medio', 'dificil'];
 const MAX_DRAW_COUNT = 6;
@@ -48,8 +49,10 @@ const clientDist = path.join(__dirname, '../../client/dist');
 const hasClientBuild = existsSync(path.join(clientDist, 'index.html'));
 
 const app = express();
+app.set('trust proxy', 1); // detrás de Nginx: necesario para saber si la petición llegó por HTTPS
 app.use(cors());
 app.use(express.json());
+registerAuthRoutes(app);
 
 app.post('/api/rosco/draw', (req, res) => {
   const { difficulty, count } = req.body ?? {};

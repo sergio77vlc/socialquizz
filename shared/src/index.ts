@@ -7,3 +7,4 @@ export * from './quizScoring.js';
 export * from './battle.js';
 export * from './packs.js';
 export * from './crossword.js';
+export * from './auth.js';
