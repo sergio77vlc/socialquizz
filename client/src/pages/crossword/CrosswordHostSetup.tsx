@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { DEFAULT_AVATAR, DEFAULT_PLAYER_COLOR, type CrosswordSummary, type Difficulty } from '@rosco/shared';
 import { useCrossword } from '../../context/CrosswordContext';
 import AvatarPicker from '../../components/AvatarPicker';
@@ -12,6 +12,8 @@ const MAX_PLAYERS = 8;
 export default function CrosswordHostSetup() {
   const navigate = useNavigate();
   const { emitWithAck, setPlayerId } = useCrossword();
+  const [searchParams] = useSearchParams();
+  const puzzleIdFromTema = searchParams.get('puzzle');
 
   const [maxPlayers, setMaxPlayers] = useState(4);
   const [tvMode, setTvMode] = useState(false);
@@ -20,19 +22,23 @@ export default function CrosswordHostSetup() {
 
   const [puzzles, setPuzzles] = useState<CrosswordSummary[]>([]);
   const [difficultyFilter, setDifficultyFilter] = useState<Difficulty | 'todas'>('todas');
-  const [selectedPuzzleId, setSelectedPuzzleId] = useState<string | null>(null);
+  const [selectedPuzzleId, setSelectedPuzzleId] = useState<string | null>(puzzleIdFromTema);
   const [loadingPuzzles, setLoadingPuzzles] = useState(true);
 
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (puzzleIdFromTema) {
+      setLoadingPuzzles(false);
+      return;
+    }
     fetch('/api/crossword/puzzles')
       .then((res) => res.json())
       .then((data) => setPuzzles(data.puzzles ?? []))
       .catch(() => {})
       .finally(() => setLoadingPuzzles(false));
-  }, []);
+  }, [puzzleIdFromTema]);
 
   const filteredPuzzles = puzzles.filter((p) => difficultyFilter === 'todas' || p.difficulty === difficultyFilter);
 
@@ -122,39 +128,45 @@ export default function CrosswordHostSetup() {
 
       <section className="setup-section">
         <h2>Crucigrama</h2>
-        <div className="pill-row">
-          <button
-            className={`pill ${difficultyFilter === 'todas' ? 'pill-active' : ''}`}
-            onClick={() => setDifficultyFilter('todas')}
-          >
-            Todas
-          </button>
-          {(['medio', 'dificil'] as const).map((d) => (
-            <button
-              key={d}
-              className={`pill ${difficultyFilter === d ? 'pill-active' : ''}`}
-              onClick={() => setDifficultyFilter(d)}
-            >
-              {DIFFICULTY_ICONS[d]} {DIFFICULTY_LABELS[d]}
-            </button>
-          ))}
-        </div>
-        {loadingPuzzles && <p className="app-subtitle">Cargando crucigramas...</p>}
-        <div className="crossword-puzzle-list">
-          {filteredPuzzles.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              className={`crossword-puzzle-option ${selectedPuzzleId === p.id ? 'crossword-puzzle-option-active' : ''}`}
-              onClick={() => setSelectedPuzzleId(p.id)}
-            >
-              <span className="crossword-puzzle-option-title">{p.title}</span>
-              <span className="crossword-puzzle-option-meta">
-                {DIFFICULTY_ICONS[p.difficulty]} {DIFFICULTY_LABELS[p.difficulty]} · {p.wordCount} palabras
-              </span>
-            </button>
-          ))}
-        </div>
+        {puzzleIdFromTema ? (
+          <p className="setup-selected">🎯 Jugando con el crucigrama de tu tema</p>
+        ) : (
+          <>
+            <div className="pill-row">
+              <button
+                className={`pill ${difficultyFilter === 'todas' ? 'pill-active' : ''}`}
+                onClick={() => setDifficultyFilter('todas')}
+              >
+                Todas
+              </button>
+              {(['medio', 'dificil'] as const).map((d) => (
+                <button
+                  key={d}
+                  className={`pill ${difficultyFilter === d ? 'pill-active' : ''}`}
+                  onClick={() => setDifficultyFilter(d)}
+                >
+                  {DIFFICULTY_ICONS[d]} {DIFFICULTY_LABELS[d]}
+                </button>
+              ))}
+            </div>
+            {loadingPuzzles && <p className="app-subtitle">Cargando crucigramas...</p>}
+            <div className="crossword-puzzle-list">
+              {filteredPuzzles.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  className={`crossword-puzzle-option ${selectedPuzzleId === p.id ? 'crossword-puzzle-option-active' : ''}`}
+                  onClick={() => setSelectedPuzzleId(p.id)}
+                >
+                  <span className="crossword-puzzle-option-title">{p.title}</span>
+                  <span className="crossword-puzzle-option-meta">
+                    {DIFFICULTY_ICONS[p.difficulty]} {DIFFICULTY_LABELS[p.difficulty]} · {p.wordCount} palabras
+                  </span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
       </section>
 
       {createError && <p className="error-text">{createError}</p>}

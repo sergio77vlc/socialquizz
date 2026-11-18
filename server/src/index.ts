@@ -19,6 +19,7 @@ import { registerBattleSocketHandlers } from './battleSocketHandlers.js';
 import { registerCrosswordSocketHandlers } from './crosswordSocketHandlers.js';
 import { listCrosswordSummaries, getCrosswordPuzzle } from './crossword/pool.js';
 import { registerAuthRoutes } from './authRoutes.js';
+import { registerStudyRoutes } from './studyRoutes.js';
 
 const VALID_DIFFICULTIES: Difficulty[] = ['medio', 'dificil'];
 const MAX_DRAW_COUNT = 6;
@@ -53,6 +54,7 @@ app.set('trust proxy', 1); // detrás de Nginx: necesario para saber si la petic
 app.use(cors());
 app.use(express.json());
 registerAuthRoutes(app);
+registerStudyRoutes(app);
 
 app.post('/api/rosco/draw', (req, res) => {
   const { difficulty, count } = req.body ?? {};

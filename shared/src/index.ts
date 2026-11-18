@@ -8,3 +8,4 @@ export * from './battle.js';
 export * from './packs.js';
 export * from './crossword.js';
 export * from './auth.js';
+export * from './study.js';

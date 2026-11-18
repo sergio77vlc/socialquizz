@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { DEFAULT_PLAYER_COLOR, PLAYER_AVATARS, type Rosco, type RoscoPack, type RoscoSelection } from '@rosco/shared';
 import RoscoPicker from '../../components/RoscoPicker';
 import AvatarPicker from '../../components/AvatarPicker';
@@ -18,13 +18,19 @@ function defaultAvatars(count: number): string[] {
 export default function LocalSetup() {
   const navigate = useNavigate();
   const { startGame } = useLocalGame();
+  const [searchParams] = useSearchParams();
+  const packIdFromTema = searchParams.get('pack');
+  const temaId = searchParams.get('tema');
 
-  const [playerCount, setPlayerCount] = useState(2);
-  const [names, setNames] = useState<string[]>(() => defaultNames(2));
-  const [avatars, setAvatars] = useState<string[]>(() => defaultAvatars(2));
+  const initialPlayerCount = temaId ? 1 : 2;
+  const [playerCount, setPlayerCount] = useState(initialPlayerCount);
+  const [names, setNames] = useState<string[]>(() => defaultNames(initialPlayerCount));
+  const [avatars, setAvatars] = useState<string[]>(() => defaultAvatars(initialPlayerCount));
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [timerSeconds, setTimerSeconds] = useState(120);
-  const [selectedRosco, setSelectedRosco] = useState<RoscoSelection | null>(null);
+  const [selectedRosco, setSelectedRosco] = useState<RoscoSelection | null>(
+    packIdFromTema ? { mode: 'pack', packId: packIdFromTema } : null,
+  );
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
 
@@ -75,7 +81,7 @@ export default function LocalSetup() {
         roscoPool = data.roscos;
       }
       startGame(roscoPool, timerSeconds, players);
-      navigate('/local/play');
+      navigate(temaId ? `/local/play?tema=${temaId}` : '/local/play');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo empezar la partida.');
     } finally {
@@ -155,7 +161,11 @@ export default function LocalSetup() {
         </div>
       </section>
 
-      <RoscoPicker value={selectedRosco} onChange={setSelectedRosco} />
+      {packIdFromTema ? (
+        <p className="setup-selected">🎯 Jugando con el rosco de repaso de tu tema</p>
+      ) : (
+        <RoscoPicker value={selectedRosco} onChange={setSelectedRosco} />
+      )}
 
       {error && <p className="error-text">{error}</p>}
 

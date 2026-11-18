@@ -204,6 +204,37 @@ Si no se define `RESEND_API_KEY`, el registro funciona igualmente: el enlace de 
 
 Los usuarios se guardan en `server/data/users.json`, igual que los paquetes de IA: fuera de `dist/`, no se sube al repositorio, y sobrevive a recompilaciones.
 
+## Modo estudio
+
+Además de los juegos de fiesta (accesibles en `/fiesta`), la portada principal (`/`) es una
+plataforma de estudio: el alumno describe lo que está estudiando y/o adjunta su temario (PDF o
+fotos), y la IA genera automáticamente un plan de repaso gamificado para ese tema — roscos
+personalizados, crucigramas, un test, un resumen y una infografía — reutilizando los mismos
+motores de juego ya existentes. También incluye un examen oral conversacional (voz del
+navegador + IA) y un modo para jugar ese mismo contenido en grupo, en sala multijugador.
+
+Usa el mismo `ANTHROPIC_API_KEY` que los paquetes de contenido (ver más abajo), pero con un
+modelo distinto, mucho más barato, pensado para mantener el coste por tema en céntimos:
+
+```bash
+STUDY_AI_MODEL=claude-haiku-5-5   # por defecto; no hace falta definirlo salvo que quieras otro modelo
+```
+
+El temario se lee directamente con la capacidad de visión/PDF de Claude (sin OCR aparte): se
+analiza una sola vez por tema y se convierte en un resumen de texto reutilizable, para no pagar
+el coste de "leer el archivo" en cada generación posterior.
+
+Límites del plan: 5 temas al mes en el plan gratis, 100 temas/mes en premium (20€/mes). Por
+ahora el cobro es manual: un administrador activa el plan premium de un usuario desde `/admin`.
+Para que tu propia cuenta tenga acceso a ese panel, define:
+
+```bash
+ADMIN_EMAIL=tu-email@ejemplo.com
+```
+
+Cualquier cuenta registrada con ese email pasa a ser administradora automáticamente (puedes
+fijar esta variable después de haberte registrado; no hace falta crear la cuenta de nuevo).
+
 ## Paquetes de contenido con IA
 
 Para habilitar la creación de paquetes (roscos completos en Pasapalabra, tandas de preguntas en Quiz y Batalla) a partir de un prompt, define la variable de entorno `ANTHROPIC_API_KEY` en el entorno donde corre `server`:
@@ -229,6 +260,7 @@ Variables de entorno opcionales:
 - `ANTHROPIC_API_KEY` — habilita la generación de paquetes de contenido por IA.
 - `ROSCO_AI_MODEL` — modelo de Anthropic a usar, tanto para roscos como para preguntas (por defecto `claude-sonnet-5`).
 - `RESEND_API_KEY`, `EMAIL_FROM`, `PUBLIC_ORIGIN`, `AUTH_JWT_SECRET` — ver la sección "Cuentas, login y verificación por email" arriba.
+- `STUDY_AI_MODEL`, `ADMIN_EMAIL` — ver la sección "Modo estudio" arriba.
 
 ## Estructura del proyecto
 

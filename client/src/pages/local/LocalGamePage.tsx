@@ -1,16 +1,19 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import AvatarView from '../../components/AvatarView';
 import RoscoPlayer from '../../components/RoscoPlayer';
 import { useLocalGame } from '../../context/LocalGameContext';
 import { rankPlayers } from '../../utils/rank';
 import { toPlayerPublic } from '../../utils/localPlayer';
 import { DIFFICULTY_ICONS, DIFFICULTY_LABELS, categoryInfo } from '../../constants';
+import { markActivityComplete } from '../../api/study';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 
 export default function LocalGamePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const temaId = searchParams.get('tema');
   const {
     roscoTheme,
     roscoDifficulty,
@@ -23,6 +26,13 @@ export default function LocalGamePage() {
     pass,
     resetGame,
   } = useLocalGame();
+
+  useEffect(() => {
+    if (phase === 'results' && temaId) {
+      markActivityComplete(temaId, 'rosco').catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, temaId]);
 
   if (!roscoDifficulty || players.length === 0) {
     return (
@@ -66,6 +76,11 @@ export default function LocalGamePage() {
         >
           🔁 Jugar otra vez
         </button>
+        {temaId && (
+          <button className="link auth-back-link" onClick={() => navigate(`/tema/${temaId}`)}>
+            ← Volver al tema
+          </button>
+        )}
       </div>
     );
   }

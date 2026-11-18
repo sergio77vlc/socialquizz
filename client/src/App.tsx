@@ -9,6 +9,15 @@ import { LocalBattleProvider } from './context/BattleLocalContext';
 import { CrosswordProvider } from './context/CrosswordContext';
 import { LocalCrosswordProvider } from './context/CrosswordLocalContext';
 import GamesHub from './pages/GamesHub';
+import StudyLanding from './pages/StudyLanding';
+import OnboardingPage from './pages/OnboardingPage';
+import ProfilePage from './pages/study/ProfilePage';
+import StudyTopicPage from './pages/study/StudyTopicPage';
+import QuizSoloPlay from './pages/study/QuizSoloPlay';
+import ExamPage from './pages/study/ExamPage';
+import StudyGroupPage from './pages/study/StudyGroupPage';
+import PremiumPage from './pages/PremiumPage';
+import AdminPage from './pages/AdminPage';
 import PasapalabraHome from './pages/PasapalabraHome';
 import HostSetup from './pages/host/HostSetup';
 import HostRoomPage from './pages/host/HostRoomPage';
@@ -54,7 +63,16 @@ export default function App() {
                 <CrosswordProvider>
                   <LocalCrosswordProvider>
                     <Routes>
-                      <Route path="/" element={<GamesHub />} />
+                      <Route path="/" element={<StudyLanding />} />
+                      <Route path="/fiesta" element={<GamesHub />} />
+                      <Route path="/onboarding" element={<OnboardingPage />} />
+                      <Route path="/perfil" element={<ProfilePage />} />
+                      <Route path="/tema/:id" element={<StudyTopicPage />} />
+                      <Route path="/tema/:id/examen" element={<ExamPage />} />
+                      <Route path="/tema/:id/grupo" element={<StudyGroupPage />} />
+                      <Route path="/premium" element={<PremiumPage />} />
+                      <Route path="/admin" element={<AdminPage />} />
+                      <Route path="/estudiar/test/:packId" element={<QuizSoloPlay />} />
                       <Route path="/login" element={<LoginPage />} />
                       <Route path="/registro" element={<RegisterPage />} />
                       <Route path="/verificar" element={<VerifyPage />} />

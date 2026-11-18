@@ -8,7 +8,7 @@ export default function PasapalabraHome() {
   const { itemCount, packCount } = usePackContentCount('rosco');
   return (
     <div className="screen screen-center">
-      <button className="back-to-hub-link" onClick={() => navigate('/')}>
+      <button className="back-to-hub-link" onClick={() => navigate('/fiesta')}>
         ← Todos los juegos
       </button>
       <h1 className="app-title">🎯 Pasapalabra</h1>

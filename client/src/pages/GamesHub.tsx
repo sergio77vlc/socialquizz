@@ -76,8 +76,13 @@ export default function GamesHub() {
   return (
     <div className="hub">
       <header className="hub-header">
-        <Logo size={34} />
+        <button type="button" className="hub-logo-btn" onClick={() => navigate('/')} aria-label="Ir al modo estudio">
+          <Logo size={34} />
+        </button>
         <nav className="hub-nav">
+          <button type="button" className="btn btn-ghost" onClick={() => navigate('/')}>
+            🎓 Modo estudio
+          </button>
           {!loading && user ? (
             <div className="hub-account">
               <button type="button" className="hub-account-btn" onClick={() => setMenuOpen((o) => !o)}>

@@ -4,6 +4,10 @@
 // propio navegador, para que funcione también sin haber iniciado sesión).
 // ==========================================================================
 
+export type EducationLevel = 'primaria' | 'eso' | 'bachillerato' | 'fp' | 'universidad' | 'otro';
+
+export type UserPlan = 'free' | 'premium';
+
 export interface PublicUser {
   id: string;
   name: string;
@@ -11,12 +15,19 @@ export interface PublicUser {
   verified: boolean;
   favorites: string[];
   createdAt: number;
+  level: EducationLevel | null;
+  plan: UserPlan;
+  isAdmin: boolean;
 }
 
 export interface RegisterPayload {
   name: string;
   email: string;
   password: string;
+}
+
+export interface OnboardingPayload {
+  level: EducationLevel;
 }
 
 export interface LoginPayload {

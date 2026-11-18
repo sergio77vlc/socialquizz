@@ -1,15 +1,24 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { DEFAULT_AVATAR, DEFAULT_PLAYER_COLOR, type CrosswordRoomPublic } from '@rosco/shared';
 import { useLocalCrossword } from '../../context/CrosswordLocalContext';
 import CrosswordBoard from '../../components/CrosswordBoard';
 import { buildLocalClues, buildLocalGrid } from '../../utils/crosswordGrid';
 import { DIFFICULTY_ICONS, DIFFICULTY_LABELS } from '../../constants';
+import { markActivityComplete } from '../../api/study';
 
 export default function CrosswordLocalGamePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const temaId = searchParams.get('tema');
   const { puzzle, solvedClueIds, score, wordsSolved, focusedClueId, lastSolved, finished, focus, submit, reset } =
     useLocalCrossword();
+
+  useEffect(() => {
+    if (finished && temaId) {
+      markActivityComplete(temaId, 'crossword').catch(() => {});
+    }
+  }, [finished, temaId]);
 
   if (!puzzle) {
     return (
@@ -77,6 +86,11 @@ export default function CrosswordLocalGamePage() {
           >
             🔁 Nuevo crucigrama
           </button>
+          {temaId && (
+            <button className="link auth-back-link" onClick={() => navigate(`/tema/${temaId}`)}>
+              ← Volver al tema
+            </button>
+          )}
         </div>
       )}
 

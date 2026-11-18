@@ -1,6 +1,7 @@
 import type { CrosswordPuzzle, CrosswordSummary } from '@rosco/shared';
 import { CROSSWORD_PRESETS } from './presets.js';
 import { validatePuzzle } from './grid.js';
+import { getGeneratedCrossword } from './generatedStore.js';
 
 // Se valida cada crucigrama preestablecido al arrancar el servidor: si algún cruce de
 // letras estuviera mal escrito, el fallo aparece aquí en vez de en mitad de una partida real.
@@ -18,5 +19,5 @@ export function listCrosswordSummaries(): CrosswordSummary[] {
 }
 
 export function getCrosswordPuzzle(id: string): CrosswordPuzzle | undefined {
-  return CROSSWORD_PRESETS.find((p) => p.id === id);
+  return CROSSWORD_PRESETS.find((p) => p.id === id) ?? getGeneratedCrossword(id);
 }

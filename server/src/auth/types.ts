@@ -1,3 +1,5 @@
+import type { EducationLevel, UserPlan } from '@rosco/shared';
+
 /** Registro completo de usuario, con datos sensibles — solo vive en el servidor. */
 export interface StoredUser {
   id: string;
@@ -9,6 +11,9 @@ export interface StoredUser {
   createdAt: number;
   favorites: string[];
   pendingVerification: PendingVerification | null;
+  level: EducationLevel | null;
+  plan: UserPlan;
+  isAdmin: boolean;
 }
 
 export interface PendingVerification {

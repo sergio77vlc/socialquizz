@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { DEFAULT_AVATAR, DEFAULT_PLAYER_COLOR, type RoscoSelection } from '@rosco/shared';
 import { useGame } from '../../context/GameContext';
 import RoscoPicker from '../../components/RoscoPicker';
@@ -13,6 +13,8 @@ const MAX_PLAYERS = 6;
 export default function HostSetup() {
   const navigate = useNavigate();
   const { emitWithAck, setPlayerId } = useGame();
+  const [searchParams] = useSearchParams();
+  const packIdFromTema = searchParams.get('pack');
 
   const [maxPlayers, setMaxPlayers] = useState(4);
   const [timerSeconds, setTimerSeconds] = useState(120);
@@ -20,7 +22,9 @@ export default function HostSetup() {
   const [hostName, setHostName] = useState('');
   const [hostAvatar, setHostAvatar] = useState<string>(DEFAULT_AVATAR);
 
-  const [selectedRosco, setSelectedRosco] = useState<RoscoSelection | null>(null);
+  const [selectedRosco, setSelectedRosco] = useState<RoscoSelection | null>(
+    packIdFromTema ? { mode: 'pack', packId: packIdFromTema } : null,
+  );
 
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
@@ -131,7 +135,11 @@ export default function HostSetup() {
         </div>
       </section>
 
-      <RoscoPicker value={selectedRosco} onChange={setSelectedRosco} />
+      {packIdFromTema ? (
+        <p className="setup-selected">🎯 Jugando con el rosco de repaso de tu tema</p>
+      ) : (
+        <RoscoPicker value={selectedRosco} onChange={setSelectedRosco} />
+      )}
 
       {createError && <p className="error-text">{createError}</p>}
 

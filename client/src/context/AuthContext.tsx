@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import type { PublicUser } from '@rosco/shared';
+import type { EducationLevel, PublicUser } from '@rosco/shared';
 
 interface AuthContextValue {
   user: PublicUser | null;
@@ -10,6 +10,7 @@ interface AuthContextValue {
   resendVerification: (email: string) => Promise<void>;
   refreshUser: () => Promise<void>;
   toggleFavorite: (gameId: string) => Promise<void>;
+  setLevel: (level: EducationLevel) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -78,8 +79,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [user],
   );
 
+  const setLevel = useCallback(async (level: EducationLevel) => {
+    const data = await apiFetch('/api/auth/level', { method: 'PUT', body: JSON.stringify({ level }) });
+    setUser(data.user);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, register, login, logout, resendVerification, refreshUser, toggleFavorite }}>
+    <AuthContext.Provider
+      value={{ user, loading, register, login, logout, resendVerification, refreshUser, toggleFavorite, setLevel }}
+    >
       {children}
     </AuthContext.Provider>
   );

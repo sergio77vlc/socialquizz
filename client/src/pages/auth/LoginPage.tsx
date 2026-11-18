@@ -20,8 +20,8 @@ export default function LoginPage() {
     setNeedsVerification(false);
     setSubmitting(true);
     try {
-      await login(email, password);
-      navigate('/');
+      const loggedInUser = await login(email, password);
+      navigate(loggedInUser.level ? '/' : '/onboarding');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo iniciar sesión.';
       setError(message);

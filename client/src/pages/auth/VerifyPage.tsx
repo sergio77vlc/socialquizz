@@ -19,8 +19,8 @@ export default function VerifyPage() {
       return {
         icon: '🎉',
         title: '¡Cuenta verificada!',
-        text: user ? `Ya has iniciado sesión como ${user.name}.` : 'Tu cuenta está lista para jugar.',
-        action: { label: '🎮 Ir a los juegos', to: '/' },
+        text: user ? `Ya has iniciado sesión como ${user.name}.` : 'Tu cuenta está lista para estudiar.',
+        action: { label: '🚀 Continuar', to: user && !user.level ? '/onboarding' : '/' },
       };
     }
     if (status === 'expired') {

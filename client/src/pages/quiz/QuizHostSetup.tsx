@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { DEFAULT_AVATAR, DEFAULT_PLAYER_COLOR, type PackSummary, type QuizDifficulty } from '@rosco/shared';
 import { useQuiz } from '../../context/QuizContext';
 import AvatarPicker from '../../components/AvatarPicker';
@@ -16,6 +16,8 @@ const DIFFICULTY_OPTIONS: QuizDifficulty[] = ['medio', 'dificil', 'mixto'];
 export default function QuizHostSetup() {
   const navigate = useNavigate();
   const { emitWithAck, setPlayerId } = useQuiz();
+  const [searchParams] = useSearchParams();
+  const packIdFromTema = searchParams.get('pack');
 
   const [maxPlayers, setMaxPlayers] = useState(6);
   const [difficulty, setDifficulty] = useState<QuizDifficulty>('medio');
@@ -26,6 +28,24 @@ export default function QuizHostSetup() {
   const [hostAvatar, setHostAvatar] = useState<string>(DEFAULT_AVATAR);
   const [packPickerOpen, setPackPickerOpen] = useState(false);
   const [selectedPack, setSelectedPack] = useState<PackSummary | null>(null);
+
+  useEffect(() => {
+    if (!packIdFromTema) return;
+    fetch(`/api/packs/quiz/${packIdFromTema}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.pack) {
+          setSelectedPack({
+            id: data.pack.id,
+            name: data.pack.name,
+            difficulty: data.pack.difficulty,
+            createdAt: data.pack.createdAt,
+            count: data.pack.questions.length,
+          });
+        }
+      })
+      .catch(() => {});
+  }, [packIdFromTema]);
 
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
@@ -121,39 +141,48 @@ export default function QuizHostSetup() {
 
       <section className="setup-section">
         <h2>Preguntas</h2>
-        <p className="preset-picker-hint">Modo rápido: elige la dificultad de cultura general.</p>
-        <div className="pill-row">
-          {DIFFICULTY_OPTIONS.map((d) => (
-            <button
-              key={d}
-              className={`pill ${!selectedPack && difficulty === d ? 'pill-active' : ''}`}
-              onClick={() => {
-                setDifficulty(d);
-                setSelectedPack(null);
-              }}
-            >
-              {QUIZ_DIFFICULTY_ICONS[d]} {QUIZ_DIFFICULTY_LABELS[d]}
-            </button>
-          ))}
-        </div>
-        <button
-          type="button"
-          className="btn btn-secondary pack-picker-open-btn"
-          onClick={() => setPackPickerOpen(true)}
-        >
-          📦 Elegir o crear un paquete guardado con IA
-        </button>
-        {selectedPack && (
+        {packIdFromTema ? (
           <p className="setup-selected pack-selected">
-            🎯 Paquete seleccionado: <strong>{selectedPack.name}</strong> ({selectedPack.count} preguntas)
+            🎯 Jugando con el test de repaso de tu tema
+            {selectedPack ? ` (${selectedPack.count} preguntas)` : ''}
           </p>
+        ) : (
+          <>
+            <p className="preset-picker-hint">Modo rápido: elige la dificultad de cultura general.</p>
+            <div className="pill-row">
+              {DIFFICULTY_OPTIONS.map((d) => (
+                <button
+                  key={d}
+                  className={`pill ${!selectedPack && difficulty === d ? 'pill-active' : ''}`}
+                  onClick={() => {
+                    setDifficulty(d);
+                    setSelectedPack(null);
+                  }}
+                >
+                  {QUIZ_DIFFICULTY_ICONS[d]} {QUIZ_DIFFICULTY_LABELS[d]}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              className="btn btn-secondary pack-picker-open-btn"
+              onClick={() => setPackPickerOpen(true)}
+            >
+              📦 Elegir o crear un paquete guardado con IA
+            </button>
+            {selectedPack && (
+              <p className="setup-selected pack-selected">
+                🎯 Paquete seleccionado: <strong>{selectedPack.name}</strong> ({selectedPack.count} preguntas)
+              </p>
+            )}
+            <ContentPackPicker
+              domain="quiz"
+              open={packPickerOpen}
+              onClose={() => setPackPickerOpen(false)}
+              onSelect={setSelectedPack}
+            />
+          </>
         )}
-        <ContentPackPicker
-          domain="quiz"
-          open={packPickerOpen}
-          onClose={() => setPackPickerOpen(false)}
-          onSelect={setSelectedPack}
-        />
       </section>
 
       <section className="setup-section">
